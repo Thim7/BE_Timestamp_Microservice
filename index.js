@@ -20,8 +20,11 @@ app.get("/", function (req, res) {
 
 // your first API endpoint...
 function validateDate(req, res, next) {
-  const { date } = req.params;
-  if (isNaN(new Date(date))) {
+  if (new Date(req.params.date).toUTCString() === "Invalid Date") {
+    req.params.date = new Date(+req.params.date);
+  }
+
+  if (new Date(req.params.date).toUTCString() === "Invalid Date") {
     return res.json({ error: "Invalid Date" });
   }
   next();
@@ -31,16 +34,15 @@ function validateDate(req, res, next) {
 app.get("/api/:date", validateDate, function (req, res) {
   const { date } = req.params;
   res.json({
-    unix: Date.parse(date),
+    unix: new Date(date).getTime(),
     utc: new Date(date).toUTCString(),
   });
 });
 
 app.get("/api", (req, res) => {
-  const date = new Date(Date.now());
   res.json({
-    unix: Date.parse(date),
-    utc: date.toUTCString(),
+    unix: new Date().getTime(),
+    utc: new Date().toUTCString(),
   });
 });
 
